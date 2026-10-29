@@ -1,12 +1,18 @@
 import { readdirSync } from 'node:fs';
 import type { RigConfig } from './config.js';
+import { readNight, type NightDigest } from './digest/reader.js';
 import { lastBeat, type Beat } from './heartbeat.js';
+
+export type StatusNight = {
+  night: string;
+  digest: Pick<NightDigest, 'counts'> | null;
+};
 
 export type Status = {
   adapter: string;
   installed: string;
   lastBeat: Beat | null;
-  nights: string[];
+  nights: StatusNight[];
 };
 
 // Nights on disk = runs/<YYYY-MM-DD>.jsonl, newest first.
@@ -27,6 +33,9 @@ export function readStatus(config: RigConfig): Status {
     adapter: config.adapter,
     installed: config.installed,
     lastBeat: lastBeat(),
-    nights: nightsOnDisk(config.runsDir),
+    nights: nightsOnDisk(config.runsDir).map((night) => ({
+      night,
+      digest: readNight(config.runsDir, night),
+    })),
   };
 }

@@ -1,5 +1,9 @@
 import type { Status } from '../status.js';
 
+function formatCounts(counts: Status['nights'][number]['digest']) {
+  return counts ? `${counts.counts.ok} ok · ${counts.counts.retry} retry · ${counts.counts.fail} fail` : '—';
+}
+
 export function StatusBoard({ status }: { status: Status }) {
   return (
     <>
@@ -19,8 +23,10 @@ export function StatusBoard({ status }: { status: Status }) {
         <p class="mute">nothing in runs/</p>
       ) : (
         <ul>
-          {status.nights.map((n) => (
-            <li>{n}</li>
+          {status.nights.map(({ night, digest }) => (
+            <li>
+              <a href={`/digest/${night}`}>{night}</a> {formatCounts(digest)}
+            </li>
           ))}
         </ul>
       )}
