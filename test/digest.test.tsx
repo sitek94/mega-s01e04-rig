@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createApp } from '../src/app.js';
+import type { NightDigest } from '../src/digest/types.js';
 
 type NightLine = {
   at: string;
@@ -47,7 +48,17 @@ async function htmlFor(runsDir: string, night: string) {
 
 async function jsonFor(runsDir: string, night: string) {
   const res = await createApp({ ...configBase, runsDir }).request(`/api/digest/${night}`);
-  return { res, body: await res.json() };
+  return { res, body: await res.json() as NightDigest };
+}
+
+function tableRows(html: string) {
+  return [...html.matchAll(/<tr>([\s\S]*?)<\/tr>/g)]
+    .map((row) => [...row[1].matchAll(/<td([^>]*)>([\s\S]*?)<\/td>/g)].map((cell) => ({
+      value: cell[2].replace(/<[^>]*>/g, '').replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>').replace(/&amp;/g, '&'),
+      warning: /class="[^"]*\bwarn\b/.test(cell[1]),
+    })))
+    .filter((row) => row.length > 0);
 }
 
 describe('digest routes', () => {
@@ -111,7 +122,7 @@ describe('digest routes', () => {
           job: 'zeta <script>',
           owner: null,
           runs: 1,
-          retries: 0,
+          retries: 1,
           lastStatus: 'retry',
           lastError: 'bad <tag>',
           firstAt: '2026-10-28T01:00:00+02:00',
@@ -119,14 +130,20 @@ describe('digest routes', () => {
         },
       ],
     });
-    expect(html).toContain('alpha');
-    expect(html).toContain('beta');
     expect(html).toContain('zeta &lt;script&gt;');
     expect(html).toContain('bad &lt;tag&gt;');
-    expect(html).toContain('2026-10-28T00:01:00+02:00');
-    expect(html).toContain('2026-10-28T01:00:00+02:00');
-    expect(html).toContain('—');
-    expect(html).toContain('warn');
+    expect(html).not.toContain('<script>');
+    const rendered = tableRows(html);
+    expect(rendered.map((row) => row.map((cell) => cell.value))).toEqual(
+      body.rows.map((row) => [
+        row.job, row.owner ?? '—', String(row.runs), String(row.retries),
+        row.lastStatus, row.lastError ?? '—', row.firstAt, row.lastAt,
+      ]),
+    );
+    expect(rendered.map((row) => [row[0].value, row[3].warning, row[4].warning])).toEqual([
+      ['alpha', false, false], ['beta', false, true], ['gamma', true, false],
+      ['zeta <script>', false, false],
+    ]);
   });
 
   it('returns 404 for a missing night', async () => {
@@ -181,5 +198,25 @@ describe('digest routes', () => {
       ],
     });
     expect(html).toContain('good');
+  });
+
+  it('links every night and counts records rather than final job statuses', async () => {
+    const runsDir = makeRunsDir({
+      '2026-10-27': [
+        { at: '2026-10-27T23:00:00+01:00', job: 'job', status: 'ok', owner: null },
+      ],
+      '2026-10-28': [
+        { at: '2026-10-28T23:00:00+01:00', job: 'job', status: 'retry', owner: null },
+        { at: '2026-10-28T23:01:00+01:00', job: 'job', status: 'fail', owner: null },
+        { at: '2026-10-28T23:02:00+01:00', job: 'job', status: 'ok', owner: null },
+        '{broken',
+      ],
+    });
+    const response = await createApp({ ...configBase, runsDir }).request('/');
+    expect(response.status).toBe(200);
+    const html = await response.text();
+    const nights = [...html.matchAll(/<li>\s*<a href="([^"]+)">[^<]*<\/a>([\s\S]*?)<\/li>/g)];
+    expect(nights.map((night) => night[1])).toEqual(['/digest/2026-10-28', '/digest/2026-10-27']);
+    expect(nights.map((night) => night[2].match(/\d+/g))).toEqual([['1', '1', '1'], ['1', '0', '0']]);
   });
 });
