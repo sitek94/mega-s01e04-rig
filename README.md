@@ -53,6 +53,11 @@ The repository secret `LANE_MARKER` supplies the first review banner. Dispatch w
 `include_marker=true` only after publication approval. After review and separate removal
 approval, dispatch with `include_marker=false` to unset the marker and replace that same URL.
 
+Sending the preview is only a handoff. Keep review issue #6 open, the preview stable, and
+the marker present until the reviewer acknowledges looking at it. Do not close the issue
+when the course merely accepts the handoff. Cleanup issue #7 waits for that acknowledgement
+and separate human approval.
+
 After each deployment, delete that run's temporary `github-pages` artifact; its fallback
 retention is one day if interrupted. Verify the public page after publication or replacement.
 The workflow, secret and Pages configuration do not authorize course submission.
