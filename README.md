@@ -38,7 +38,8 @@ curl --fail http://127.0.0.1:8787/digest/2026-10-28 -o ../preview.html
 Keep previews and `.env` out of Git. Publish only after approval, wait for review, then
 restart without `LANE_MARKER`, export again and replace the same public URL after a second
 approval. The marker-free banner reads "no marker set"; do not merely hide the marker.
-The active [plan](plan.md) moves to `docs/plans/done/` with its issue links only after cleanup.
+The completed [morning digest plan](docs/plans/done/2026-10-29-morning-digest.md) records its
+issue list, review prerequisite, and verified cleanup.
 
 ## GitHub Pages review copy
 

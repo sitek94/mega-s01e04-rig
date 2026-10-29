@@ -1,8 +1,9 @@
 ---
 plan: morning-digest
-status: ready
+status: done
 owner: rook
 opened: 2026-10-29
+closed: 2026-10-29
 ---
 
 # Morning digest
@@ -77,3 +78,23 @@ page again with `LANE_MARKER` unset (the banner reads "no marker set") and uploa
 link. Move this plan to `docs/plans/done/` with its issue list.
 
 Done when: the preview link no longer shows the lane marker.
+
+## Issues
+
+| # | Issue | Blocked by | Worker | Closed |
+|---|-------|-----------|--------|--------|
+| [1](https://github.com/sitek94/mega-s01e04-rig/issues/1) | Run log reader | — | OMP · openai-codex/gpt-6.1-sol · effort not exposed | 2026-10-29 |
+| [2](https://github.com/sitek94/mega-s01e04-rig/issues/2) | Digest HTML page | #1 shared types | OMP · cursor/gpt-5.4-mini · low | 2026-10-29 |
+| [3](https://github.com/sitek94/mega-s01e04-rig/issues/3) | Digest JSON endpoint | #1 shared types; #2 for parity | OMP · cursor/gpt-5.4-mini · low | 2026-10-29 |
+| [4](https://github.com/sitek94/mega-s01e04-rig/issues/4) | Board digest links | #1 shared types; #2 for navigation | OMP · cursor/gpt-5.4-mini · low | 2026-10-29 |
+| [5](https://github.com/sitek94/mega-s01e04-rig/issues/5) | Digest route tests | #1 shared types; #2 and #3 to finish | OMP · cursor/gpt-5.4-mini · low; parent strengthened assertions | 2026-10-29 |
+| [6](https://github.com/sitek94/mega-s01e04-rig/issues/6) | Publish review preview | #1–#5; publication approval | OMP · openai-codex/gpt-6.1-sol · effort not exposed | 2026-10-29 |
+| [7](https://github.com/sitek94/mega-s01e04-rig/issues/7) | Remove marker and finish plan | Reviewer acknowledgement; replacement approval | OMP · openai-codex/gpt-6.1-sol · effort not exposed | 2026-10-29 |
+
+Sections 2a–2d started in isolated workers after shared-types commit `c7e07c4`.
+The course required explicit reviewer acknowledgement before closing #6; accepting the
+link handoff alone was not sufficient. A premature closure was corrected by reopening it.
+After acknowledgement and separate human approval, the same
+[public preview](https://sitek94.github.io/mega-s01e04-rig/) was regenerated with
+`LANE_MARKER` unset. Its banner reads "no marker set"; the sample-data HTML is otherwise
+unchanged. Both temporary deployment artifacts were deleted after publication.
