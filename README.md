@@ -39,3 +39,20 @@ Keep previews and `.env` out of Git. Publish only after approval, wait for revie
 restart without `LANE_MARKER`, export again and replace the same public URL after a second
 approval. The marker-free banner reads "no marker set"; do not merely hide the marker.
 The active [plan](plan.md) moves to `docs/plans/done/` with its issue links only after cleanup.
+
+## GitHub Pages review copy
+
+The [preview workflow](.github/workflows/preview.yml) exports the running Hono route to
+one HTML file in the runner's temporary directory, then deploys through GitHub's Pages
+artifact API. This is not a Vite build or an SPA: the public site has no server or API.
+Generated HTML is never committed to `main` or a `gh-pages` branch.
+
+The public copy is at <https://sitek94.github.io/mega-s01e04-rig/>. The workflow is
+manual-only and restricted to `main`; code pushes do not republish the page.
+The repository secret `LANE_MARKER` supplies the first review banner. Dispatch with
+`include_marker=true` only after publication approval. After review and separate removal
+approval, dispatch with `include_marker=false` to unset the marker and replace that same URL.
+
+After each deployment, delete that run's temporary `github-pages` artifact; its fallback
+retention is one day if interrupted. Verify the public page after publication or replacement.
+The workflow, secret and Pages configuration do not authorize course submission.
